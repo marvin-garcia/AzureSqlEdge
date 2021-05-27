@@ -37,3 +37,5 @@ If you don't have an IoT edge environment, follow these steps:
 
 
 
+[Deploy Azure SQL Edge using the Azure portal | Microsoft Docs](https://docs.microsoft.com/en-us/azure/azure-sql-edge/deploy-portal#connect-from-outside-the-container)
+
