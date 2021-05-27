@@ -43,9 +43,8 @@
         }
       },
       "$edgeHub": {
-        "properties.desired.routes.simTempSensorToIoTHub": "FROM /messages/modules/simTempSensor/* INTO $upstream",
-        "properties.desired.routes.simTempSensorToSqlEdge": "FROM /messages/modules/simTempSensor/* INTO BrokeredEndpoint(\"modules/sqlEdge/inputs/sensor\")",
-        "properties.desired.routes.streamAnalyticsToIoTHub": "FROM /messages/modules/sqlEdge/outputs/iothub INTO $upstream"
+        "properties.desired.routes.simTempSensorToSqlEdge": "FROM /messages/modules/simTempSensor/* INTO BrokeredEndpoint(\"modules/sqlEdge/inputs/sensorinput\")",
+        "properties.desired.routes.streamAnalyticsToIoTHub": "FROM /messages/modules/sqlEdge/outputs/sensoroutput INTO $upstream"
       },
       "SimulatedTemperatureSensor": {
         "properties.desired": {

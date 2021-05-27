@@ -1,13 +1,12 @@
--- Create a master key on the database. Required to encrypt the credential secret.
-CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'SuperStrongM@sterK3y!';
-GO
-
 -- Create database
-CREATE DATABASE AzureSqlEdge;
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name='IoTEdgeDB')
+BEGIN
+    CREATE DATABASE IoTEdgeDB;
+END;
 GO
 
 -- Create table
-USE AzureSqlEdge;
+USE IoTEdgeDB;
 GO
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE NAME = N'SimulatedTemperature')
 BEGIN
@@ -19,13 +18,16 @@ GO
 CREATE LOGIN iotuser WITH PASSWORD = 'SuperSecretP@ssw0rd!'
 GO
 
+-- Create a master key on the database. Required to encrypt the credential secret.
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'SuperStrongM@sterK3y!';
+
 -- Create a database-scoped credential for accessing the SQL Server source
 CREATE DATABASE SCOPED CREDENTIAL SQLCredential
 WITH IDENTITY = 'iotuser', SECRET = 'SuperSecretP@ssw0rd!'
 GO
 
 -- Create database user
-Use AzureSqlEdge;
+Use IoTEdgeDB;
 GO
 
 IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'iotuser')
@@ -105,7 +107,7 @@ CREATE EXTERNAL STREAM SqlOutput
 WITH
 (
     DATA_SOURCE = LocalSQLOutput,
-    LOCATION = N'AzureSqlEdge.dbo.SimulatedTemperature',
+    LOCATION = N'IoTEdgeDB.dbo.SimulatedTemperature',
     INPUT_OPTIONS = N'',
     OUTPUT_OPTIONS = N''
 );
@@ -124,4 +126,8 @@ Select
     ambient.humidity as [ambientHumidity]
  INTO SqlOutput from SensorInput
  '
+GO
+
+-- Start streaming job
+EXEC sys.sp_start_streaming_job @name=N'StreamingJob1'
 GO
