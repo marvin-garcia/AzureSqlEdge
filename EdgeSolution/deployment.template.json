@@ -11,9 +11,6 @@
           "env": {
             "MessageCount": {
               "value": "-1"
-            },
-            "SendInterval": {
-              "value": 30
             }
           },
           "status": "running",
@@ -52,7 +49,7 @@
       "SimulatedTemperatureSensor": {
         "properties.desired": {
           "SendData": true,
-          "SendInterval": 5
+          "SendInterval": 30
         }
       }
     }
