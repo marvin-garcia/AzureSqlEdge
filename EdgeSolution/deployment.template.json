@@ -11,6 +11,9 @@
           "env": {
             "MessageCount": {
               "value": "-1"
+            },
+            "SendInterval": {
+              "value": 30
             }
           },
           "status": "running",
