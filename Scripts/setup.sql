@@ -37,6 +37,9 @@ BEGIN
 END;
 GO
 
+EXEC sys.sp_stop_streaming_job @name=N'StreamingJob1'
+GO
+
 -- Create file format for stream input
 Create External file format JsonFormat
 WITH
