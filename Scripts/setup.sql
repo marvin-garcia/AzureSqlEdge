@@ -38,31 +38,15 @@ END;
 GO
 
 -- Create file format for stream input
-Create External file format InputFileFormat
+Create External file format JsonFormat
 WITH
 ( 
    format_type = JSON,
-)
-GO
-
--- Create file format for stream outnput
-Create External file format OutputFileFormat
-WITH
-( 
-   format_type = JSON,
-)
-GO
-
--- Create stream input data source
-CREATE EXTERNAL DATA SOURCE EdgeHubInput
-WITH
-(
-    LOCATION = 'edgehub://'
 )
 GO
 
 -- Create stream output data source
-CREATE EXTERNAL DATA SOURCE EdgeHubOutput
+CREATE EXTERNAL DATA SOURCE EdgeHubTarget
 WITH
 (
     LOCATION = 'edgehub://'
@@ -82,8 +66,8 @@ GO
 CREATE EXTERNAL STREAM SensorInput
 WITH
 (
-    DATA_SOURCE = EdgeHubInput,
-    FILE_FORMAT = InputFileFormat,
+    DATA_SOURCE = EdgeHubTarget,
+    FILE_FORMAT = JsonFormat,
     LOCATION = N'sensorinput',
     INPUT_OPTIONS = N'',
     OUTPUT_OPTIONS = N''
@@ -94,8 +78,8 @@ GO
 CREATE EXTERNAL STREAM SensorOutput
 WITH
 (
-    DATA_SOURCE = EdgeHubOutput,
-    FILE_FORMAT = OutputFileFormat,
+    DATA_SOURCE = EdgeHubTarget,
+    FILE_FORMAT = JsonFormat,
     LOCATION = N'sensoroutput',
     INPUT_OPTIONS = N'',
     OUTPUT_OPTIONS = N''
