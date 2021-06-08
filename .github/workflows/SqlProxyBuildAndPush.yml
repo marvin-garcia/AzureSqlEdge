@@ -9,8 +9,8 @@ on:
         description: "Run comments"
         required: false
 env:
-  DOCKER_FILE: Dockerfile.amd64
-  DOCKER_CONTEXT: ./SqlEdgeSolution/modules/SqlProxy
+  FILE: Dockerfile.amd64
+  CONTEXT: ./SqlEdgeSolution/modules/SqlProxy
   IMAGE_NAME: "marvingarcia/sqlproxy"
   IMAGE_TAG: "tbd"
 jobs:
@@ -27,7 +27,7 @@ jobs:
           docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Docker build
         run: |
-          docker build -t ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ env.DOCKER_CONTEXT }} -f ${{ env.DOCKER_CONTEXT }}/${{ env.DOCKER_FILE }}
+          docker build -t ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ env.CONTEXT }} -f ${{ env.CONTEXT }}/${{ env.FILE }}
       - name: Docker tag
         run: |
           docker tag ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ env.IMAGE_NAME }}:latest
