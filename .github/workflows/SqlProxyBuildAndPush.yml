@@ -20,6 +20,9 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v2
+      - name: See current dir
+        run: |
+          echo $(pwd) && echo $(ls)
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
