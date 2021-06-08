@@ -1,0 +1,35 @@
+{
+    "content": {
+      "modulesContent": {
+        "$edgeAgent": {
+          "properties.desired.modules.sqlEdge": {
+            "settings": {
+              "image": "mcr.microsoft.com/azure-sql-edge/developer",
+              "createOptions": "{ \"Hostname\": \"sqlEdge\", \"HostConfig\": { \"CapAdd\": [ \"SYS_PTRACE\" ], \"Binds\": [ \"sqlvolume:/sqlvolume\" ], \"PortBindings\": { \"1433/tcp\": [ { \"HostPort\": \"1433\" } ] }, \"Mounts\": [ { \"Type\": \"volume\", \"Source\": \"sqlvolume\", \"Target\": \"/var/opt/mssql\" } ] }, \"Env\": [ \"MSSQL_AGENT_ENABLED=TRUE\", \"ClientTransportType=AMQP_TCP_Only\", \"PlanId=asde-developer-on-iot-edge\" ] }"
+            },
+            "type": "docker",
+            "env": {
+              "ACCEPT_EULA": {
+                "value": "Y"
+              },
+              "MSSQL_SA_PASSWORD": {
+                "value": "SuperSecretP@ssw0rd!"
+              },
+              "MSSQL_LCID": {
+                "value": "1033"
+              },
+              "MSSQL_COLLATION": {
+                "value": "SQL_Latin1_General_CP1_CI_AS"
+              }
+            },
+            "status": "running",
+            "restartPolicy": "always",
+            "version": "1.0"
+          }
+        },
+        "$edgeHub": {
+          "properties.desired.routes.streamAnalyticsToIoTHub": "FROM /messages/modules/sqlEdge/outputs/iothub INTO $upstream"
+        }
+      }
+    }
+  }
