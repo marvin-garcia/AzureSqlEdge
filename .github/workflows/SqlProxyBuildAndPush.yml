@@ -2,7 +2,7 @@ name: Build and push SqlProxy Docker image
 on:
   push:
     paths:
-    - 'SqlEdgeSolution/modules/SqlProxy'
+    - 'SqlEdgeSolution/modules/SqlProxy/**'
   workflow_dispatch:
     inputs:
       comment:
