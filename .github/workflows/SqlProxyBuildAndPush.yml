@@ -9,8 +9,8 @@ on:
         description: "Run comments"
         required: false
 env:
-  DOCKER_FILE: SqlEdgeSolution/modules/SqlProxy/Dockerfile.amd64
-  DOCKER_CONTEXT: SqlEdgeSolution/modules/SqlProxy/
+  DOCKER_FILE: Dockerfile.amd64
+  DOCKER_CONTEXT: ./SqlEdgeSolution/modules/SqlProxy
   IMAGE_NAME: "marvingarcia/sqlproxy"
   IMAGE_TAG: "tbd"
 jobs:
@@ -39,7 +39,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v2
         with:
-          file: ${{ env.DOCKER_FILE }}
+          file: ${{ env.DOCKER_CONTEXT }}/${{ env.DOCKER_FILE }}
           context: ${{ env.DOCKER_CONTEXT }}
           push: true
           tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }},${{ env.IMAGE_NAME }}:latest
