@@ -121,6 +121,8 @@ namespace SqlProxy
                 // ExecuteSqlCommand executeSqlCommand = JsonConvert.DeserializeObject<ExecuteSqlCommand>(Encoding.UTF8.GetString(methodRequest.Data));
                 object data = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(methodRequest.Data));
                 ExecuteSqlCommand executeSqlCommand = data as ExecuteSqlCommand;
+                logger.LogDebug($"Deserialized payload: {JsonConvert.SerializeObject(executeSqlCommand)}");
+
                 string connectionString = SqlHelper.GenerateConnectionString(executeSqlCommand.DataSource, executeSqlCommand.Database, executeSqlCommand.UserId, executeSqlCommand.Password);
 
                 string queryResponse = await SqlHelper.ExecuteCommand(connectionString, executeSqlCommand.Command);
