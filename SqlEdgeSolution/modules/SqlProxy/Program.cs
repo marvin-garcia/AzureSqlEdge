@@ -10,16 +10,21 @@ namespace SqlProxy
     using System.Threading.Tasks;
     using Microsoft.Azure.Devices.Client;
     using Microsoft.Azure.Devices.Client.Transport.Mqtt;
+    using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
     using SqlProxy.Models;
     using SqlProxy.Methods;
+    using IoTEdgeLogger;
 
     class Program
     {
         static int counter;
+        static ILogger logger;
 
         static void Main(string[] args)
         {
+            Logger.SetLogLevel("debug");
+            logger = Logger.Factory.CreateLogger<string>();
             Init().Wait();
 
             // Wait until the app unloads or is cancelled
@@ -51,12 +56,12 @@ namespace SqlProxy
             // Open a connection to the Edge runtime
             ModuleClient ioTHubModuleClient = await ModuleClient.CreateFromEnvironmentAsync(settings);
             await ioTHubModuleClient.OpenAsync();
-            Console.WriteLine("IoT Hub module client initialized.");
+            logger.LogInformation("IoT Hub module client initialized.");
 
             // Register callback to be called when a message is received by the module
             await ioTHubModuleClient.SetInputMessageHandlerAsync("input1", PipeMessage, ioTHubModuleClient);
 
-            await ioTHubModuleClient.SetMethodHandlerAsync("ExecuteSqlQuery", ExecuteSqlQueryAsync, ioTHubModuleClient);
+            await ioTHubModuleClient.SetMethodHandlerAsync("ExecuteSqlCommand", ExecuteSqlCommandAsync, ioTHubModuleClient);
         }
 
         /// <summary>
@@ -76,7 +81,7 @@ namespace SqlProxy
 
             byte[] messageBytes = message.GetBytes();
             string messageString = Encoding.UTF8.GetString(messageBytes);
-            Console.WriteLine($"Received message: {counterValue}, Body: [{messageString}]");
+            logger.LogInformation($"Received message: {counterValue}, Body: [{messageString}]");
 
             if (!string.IsNullOrEmpty(messageString))
             {
@@ -87,8 +92,8 @@ namespace SqlProxy
                         pipeMessage.Properties.Add(prop.Key, prop.Value);
                     }
                     await moduleClient.SendEventAsync("output1", pipeMessage);
-                
-                    Console.WriteLine("Received message sent");
+
+                    logger.LogInformation("Received message sent");
                 }
             }
             return MessageResponse.Completed;
@@ -99,34 +104,45 @@ namespace SqlProxy
         /// It just pipe the messages without any change.
         /// It prints all the incoming messages.
         /// </summary>
-        static async Task<MethodResponse> ExecuteSqlQueryAsync(MethodRequest methodRequest, object userContext)
+        static async Task<MethodResponse> ExecuteSqlCommandAsync(MethodRequest methodRequest, object userContext)
         {
-            // return await Task.Run(() => { return ExecuteSqlQueryAsync(methodRequest, userContext); });
-            var moduleClient = userContext as ModuleClient;
-            if (moduleClient == null)
+            try
             {
-                throw new InvalidOperationException("UserContext doesn't contain " + "expected values");
+                logger.LogInformation("ExecuteSqlCommandAsync method started");
+                logger.LogDebug($"ExecuteSqlCommandAsync method payload: {methodRequest.DataAsJson}");
+
+                // return await Task.Run(() => { return ExecuteSqlCommandAsync(methodRequest, userContext); });
+                var moduleClient = userContext as ModuleClient;
+                if (moduleClient == null)
+                {
+                    throw new InvalidOperationException("UserContext doesn't contain " + "expected values");
+                }
+
+                switch (methodRequest.Name)
+                {
+                    case "ExecuteSqlQuery":
+                        ExecuteSqlCommand executeSqlQuery = JsonConvert.DeserializeObject<ExecuteSqlCommand>(methodRequest.DataAsJson);
+                        string connectionString = SqlHelper.GenerateConnectionString(executeSqlQuery.DataSource, executeSqlQuery.Database, executeSqlQuery.UserId, executeSqlQuery.Password);
+
+                        try
+                        {
+                            string queryResponse = await SqlHelper.ExecuteCommand(connectionString, executeSqlQuery.Command);
+                            return new MethodResponse(Encoding.UTF8.GetBytes(queryResponse), 200);
+                        }
+                        catch (Exception e)
+                        {
+                            return new MethodResponse(Encoding.UTF8.GetBytes(e.ToString()), 500);
+                        }
+
+                    default:
+                        string message = $"Method {methodRequest.Name} is not supported";
+                        return new MethodResponse(Encoding.UTF8.GetBytes(message), 404);
+                }
             }
-
-            switch (methodRequest.Name)
+            catch (Exception e)
             {
-                case "ExecuteSqlQuery":
-                    ExecuteSqlCommand executeSqlQuery = JsonConvert.DeserializeObject<ExecuteSqlCommand>(methodRequest.DataAsJson);
-                    string connectionString = SqlHelper.GenerateConnectionString(executeSqlQuery.DataSource, executeSqlQuery.Database, executeSqlQuery.UserId, executeSqlQuery.Password);
-                    
-                    try
-                    {
-                        string queryResponse = await SqlHelper.ExecuteCommand(connectionString, executeSqlQuery.Command);
-                        return new MethodResponse(Encoding.UTF8.GetBytes(queryResponse), 200);
-                    }
-                    catch (Exception e)
-                    {
-                        return new MethodResponse(Encoding.UTF8.GetBytes(e.ToString()), 500);
-                    }
-
-                default:
-                    string message = $"Method {methodRequest.Name} is not supported";
-                    return new MethodResponse(Encoding.UTF8.GetBytes(message), 404);
+                logger.LogError(e.ToString());
+                return new MethodResponse(Encoding.UTF8.GetBytes(e.ToString()), 500);
             }
         }
     }

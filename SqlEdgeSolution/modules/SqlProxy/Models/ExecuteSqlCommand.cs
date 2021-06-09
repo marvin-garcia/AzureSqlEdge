@@ -10,8 +10,6 @@ namespace SqlProxy.Models
         [JsonProperty("database")]
         public string Database { get; set; }
         [JsonProperty("table")]
-        public string Table { get; set; }
-        [JsonProperty("userId")]
         public string UserId { get; set; }
         [JsonProperty("password")]
         public string Password { get; set; }
