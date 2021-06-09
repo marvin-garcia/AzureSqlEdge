@@ -9,7 +9,7 @@ namespace SqlProxy.Models
         public string DataSource { get; set; }
         [JsonProperty("database")]
         public string Database { get; set; }
-        [JsonProperty("table")]
+        [JsonProperty("userId")]
         public string UserId { get; set; }
         [JsonProperty("password")]
         public string Password { get; set; }

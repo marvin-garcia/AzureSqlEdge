@@ -111,7 +111,6 @@ namespace SqlProxy
                 logger.LogInformation("ExecuteSqlCommandAsync method started");
                 logger.LogDebug($"ExecuteSqlCommandAsync method payload: {methodRequest.DataAsJson}");
 
-                // return await Task.Run(() => { return ExecuteSqlCommandAsync(methodRequest, userContext); });
                 var moduleClient = userContext as ModuleClient;
                 if (moduleClient == null)
                 {
