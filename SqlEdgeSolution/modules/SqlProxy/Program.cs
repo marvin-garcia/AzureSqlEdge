@@ -129,7 +129,7 @@ namespace SqlProxy
             catch (Exception e)
             {
                 logger.LogError(e.ToString());
-                string result = $"{{\"exception\":\"{e.ToString()}\"}}";
+                string result = $"{{\"exception\":\"{e.Message}\"}}";
                 return new MethodResponse(Encoding.UTF8.GetBytes(result), 500);
             }
         }
