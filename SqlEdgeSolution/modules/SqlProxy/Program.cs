@@ -109,7 +109,7 @@ namespace SqlProxy
             try
             {
                 logger.LogInformation("ExecuteSqlCommandAsync method started");
-                logger.LogDebug($"ExecuteSqlCommandAsync method payload: {methodRequest.DataAsJson}");
+                logger.LogDebug($"ExecuteSqlCommandAsync method payload: {Encoding.UTF8.GetString(methodRequest.Data)}");
 
                 var moduleClient = userContext as ModuleClient;
                 if (moduleClient == null)
@@ -120,7 +120,7 @@ namespace SqlProxy
                 switch (methodRequest.Name)
                 {
                     case "ExecuteSqlQuery":
-                        ExecuteSqlCommand executeSqlQuery = JsonConvert.DeserializeObject<ExecuteSqlCommand>(methodRequest.DataAsJson);
+                        ExecuteSqlCommand executeSqlQuery = JsonConvert.DeserializeObject<ExecuteSqlCommand>(Encoding.UTF8.GetString(methodRequest.Data));
                         string connectionString = SqlHelper.GenerateConnectionString(executeSqlQuery.DataSource, executeSqlQuery.Database, executeSqlQuery.UserId, executeSqlQuery.Password);
 
                         try
