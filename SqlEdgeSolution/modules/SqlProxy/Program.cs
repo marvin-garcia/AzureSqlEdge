@@ -120,17 +120,17 @@ namespace SqlProxy
 
                 ExecuteSqlCommand executeSqlCommand = JsonConvert.DeserializeObject<ExecuteSqlCommand>(Encoding.UTF8.GetString(methodRequest.Data));
                 string connectionString = SqlHelper.GenerateConnectionString(executeSqlCommand.DataSource, executeSqlCommand.Database, executeSqlCommand.UserId, executeSqlCommand.Password);
-                logger.LogDebug($"Connection string: {connectionString}");
-
                 string queryResponse = await SqlHelper.ExecuteCommand(connectionString, executeSqlCommand.Command);
                 logger.LogDebug($"query response: {queryResponse}");
-                
-                return new MethodResponse(Encoding.UTF8.GetBytes(queryResponse), 200);
+
+                string result = $"{{\"result\":\"{queryResponse}\"}}";
+                return new MethodResponse(Encoding.UTF8.GetBytes(result), 200);
             }
             catch (Exception e)
             {
                 logger.LogError(e.ToString());
-                return new MethodResponse(Encoding.UTF8.GetBytes(e.ToString()), 500);
+                string result = $"{{\"exception\":\"{e.ToString()}\"}}";
+                return new MethodResponse(Encoding.UTF8.GetBytes(result), 500);
             }
         }
     }
