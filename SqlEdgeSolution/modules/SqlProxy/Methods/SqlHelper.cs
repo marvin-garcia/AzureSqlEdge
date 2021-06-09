@@ -1,6 +1,6 @@
-using System;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
+using System.Collections.Generic;
 
 namespace SqlProxy.Methods
 {
@@ -14,7 +14,7 @@ namespace SqlProxy.Methods
 
         public static async Task<string> ExecuteCommand(string connectionString, string queryString)
         {
-            string response = string.Empty;
+            List<string> responseColumns = new List<string>();
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -24,12 +24,13 @@ namespace SqlProxy.Methods
                 {
                     if (reader.Read())
                     {
-                        response = reader.ToString();
+                        for (int i = 0; i < reader.FieldCount; i++)
+                            responseColumns.Add(reader[i].ToString());
                     }
                 }
             }
 
-            return response;
+            return string.Join(", ", responseColumns);
         }
     }
 }
