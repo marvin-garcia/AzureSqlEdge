@@ -119,12 +119,12 @@ namespace SqlProxy
                 }
 
                 ExecuteSqlCommand executeSqlCommand = JsonConvert.DeserializeObject<ExecuteSqlCommand>(Encoding.UTF8.GetString(methodRequest.Data));
-                dynamic data = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(methodRequest.Data));
-                logger.LogDebug($"Deserialized payload: {JsonConvert.SerializeObject(data)}");
+                // dynamic data = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(methodRequest.Data));
+                logger.LogDebug($"Deserialized payload: {JsonConvert.SerializeObject(executeSqlCommand)}");
 
-                string connectionString = SqlHelper.GenerateConnectionString(data.DataSource, data.Database, data.UserId, data.Password);
+                string connectionString = SqlHelper.GenerateConnectionString(executeSqlCommand.DataSource, executeSqlCommand.Database, executeSqlCommand.UserId, executeSqlCommand.Password);
 
-                string queryResponse = await SqlHelper.ExecuteCommand(connectionString, data.Command);
+                string queryResponse = await SqlHelper.ExecuteCommand(connectionString, executeSqlCommand.Command);
                 return new MethodResponse(Encoding.UTF8.GetBytes(queryResponse), 200);
             }
             catch (Exception e)
