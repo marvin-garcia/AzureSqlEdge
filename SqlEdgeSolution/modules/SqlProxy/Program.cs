@@ -15,6 +15,7 @@ namespace SqlProxy
     using SqlProxy.Models;
     using SqlProxy.Methods;
     using IoTEdgeLogger;
+    using Newtonsoft.Json.Linq;
 
     class Program
     {
@@ -117,26 +118,13 @@ namespace SqlProxy
                     throw new InvalidOperationException("UserContext doesn't contain " + "expected values");
                 }
 
-                switch (methodRequest.Name)
-                {
-                    case "ExecuteSqlQuery":
-                        ExecuteSqlCommand executeSqlQuery = JsonConvert.DeserializeObject<ExecuteSqlCommand>(Encoding.UTF8.GetString(methodRequest.Data));
-                        string connectionString = SqlHelper.GenerateConnectionString(executeSqlQuery.DataSource, executeSqlQuery.Database, executeSqlQuery.UserId, executeSqlQuery.Password);
+                // ExecuteSqlCommand executeSqlCommand = JsonConvert.DeserializeObject<ExecuteSqlCommand>(Encoding.UTF8.GetString(methodRequest.Data));
+                object data = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(methodRequest.Data));
+                ExecuteSqlCommand executeSqlCommand = data as ExecuteSqlCommand;
+                string connectionString = SqlHelper.GenerateConnectionString(executeSqlCommand.DataSource, executeSqlCommand.Database, executeSqlCommand.UserId, executeSqlCommand.Password);
 
-                        try
-                        {
-                            string queryResponse = await SqlHelper.ExecuteCommand(connectionString, executeSqlQuery.Command);
-                            return new MethodResponse(Encoding.UTF8.GetBytes(queryResponse), 200);
-                        }
-                        catch (Exception e)
-                        {
-                            return new MethodResponse(Encoding.UTF8.GetBytes(e.ToString()), 500);
-                        }
-
-                    default:
-                        string message = $"Method {methodRequest.Name} is not supported";
-                        return new MethodResponse(Encoding.UTF8.GetBytes(message), 404);
-                }
+                string queryResponse = await SqlHelper.ExecuteCommand(connectionString, executeSqlCommand.Command);
+                return new MethodResponse(Encoding.UTF8.GetBytes(queryResponse), 200);
             }
             catch (Exception e)
             {
