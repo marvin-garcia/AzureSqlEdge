@@ -1,4 +1,4 @@
-name: Build and push custom Azure SQL Edge Docker image
+name: Docker build SQL Edge
 on:
   push:
     paths:

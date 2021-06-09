@@ -1,4 +1,4 @@
-name: Build and push SqlProxy Docker image
+name: Docker build SqlProxy
 on:
   push:
     paths:
