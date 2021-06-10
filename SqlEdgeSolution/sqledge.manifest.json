@@ -4,7 +4,7 @@
             "$edgeAgent": {
                 "properties.desired.modules.sqlEdge": {
                     "settings": {
-                        "image": "mcr.microsoft.com/azure-sql-edge/developer",
+                        "image": "marvingarcia/azure-sql-edge-developer:2106101352",
                         "createOptions": "{ \"Hostname\": \"sqlEdge\", \"HostConfig\": { \"CapAdd\": [ \"SYS_PTRACE\" ], \"Binds\": [ \"sqlvolume:/sqlvolume\" ], \"PortBindings\": { \"1433/tcp\": [ { \"HostPort\": \"1433\" } ] }, \"Mounts\": [ { \"Type\": \"volume\", \"Source\": \"sqlvolume\", \"Target\": \"/var/opt/mssql\" } ] }, \"Env\": [ \"MSSQL_AGENT_ENABLED=TRUE\", \"ClientTransportType=AMQP_TCP_Only\", \"PlanId=asde-developer-on-iot-edge\" ] }"
                     },
                     "type": "docker",
@@ -22,16 +22,6 @@
                             "value": "SQL_Latin1_General_CP1_CI_AS"
                         }
                     },
-                    "status": "running",
-                    "restartPolicy": "always",
-                    "version": "1.0"
-                },
-                "properties.desired.modules.sqlProxy": {
-                    "settings": {
-                        "image": "marvingarcia/sqlproxy:2106091514",
-                        "createOptions": "{}"
-                    },
-                    "type": "docker",
                     "status": "running",
                     "restartPolicy": "always",
                     "version": "1.0"
