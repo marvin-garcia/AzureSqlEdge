@@ -7,5 +7,10 @@ WORKDIR /usr/work
 # Copy all scripts into working directory
 COPY . /usr/work/
 
+# Grant execute permissions to initialization script
+USER root
+RUN chmod +x /usr/work/initialize.sh
+
+USER mssql
 EXPOSE 1433
 CMD /bin/bash ./entrypoint.sh
