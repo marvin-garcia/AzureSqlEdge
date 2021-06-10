@@ -11,7 +11,7 @@ on:
 env:
   FILE: Dockerfile.amd64
   CONTEXT: ./SqlEdgeSolution/modules/AzureSqlEdge
-  IMAGE_NAME: "marvingarcia/sqledge"
+  IMAGE_NAME: "marvingarcia/azure-sql-edge-developer"
   IMAGE_TAG: "tbd"
 jobs:
   build-and-package:
