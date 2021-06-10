@@ -7,9 +7,5 @@ WORKDIR /usr/work
 # Copy all scripts into working directory
 COPY . /usr/work/
 
-# Grant permissions fo the initialization script to be executed
-RUN chmod +x /usr/work/initialize.sh
-
 EXPOSE 1433
-
 CMD /bin/bash ./entrypoint.sh

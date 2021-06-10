@@ -1,1 +1,1 @@
-/usr/work/initialize.sh & /opt/mssql/bin/sqlservr
+/usr/work/initialize.sh & /opt/mssql/bin/sqlservr >> /usr/work/mssqllogs.txt 2>&1
