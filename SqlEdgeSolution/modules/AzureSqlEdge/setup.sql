@@ -5,12 +5,13 @@ BEGIN
 END;
 GO
 
--- Create table
 USE IoTEdgeDB;
 GO
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE NAME = N'SimulatedTemperature')
+
+-- Create table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE NAME = N'SensorTemperature')
 BEGIN
-    CREATE TABLE SimulatedTemperature (timeCreated datetime2, machineTemperature float, machinePressure float, ambientTemperature float, ambientHumidity float);
+    CREATE TABLE SensorTemperature (timeCreated datetime2, machineTemperature float, machinePressure float, ambientTemperature float, ambientHumidity float);
 END;
 GO
 
@@ -22,14 +23,10 @@ GO
 CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'SuperStrongM@sterK3y!';
 
 -- Create a database-scoped credential for accessing the SQL Server source
-CREATE DATABASE SCOPED CREDENTIAL SQLCredential
-WITH IDENTITY = 'iotuser', SECRET = 'SuperSecretP@ssw0rd!'
+CREATE DATABASE SCOPED CREDENTIAL SQLCredential WITH IDENTITY = 'iotuser', SECRET = 'SuperSecretP@ssw0rd!'
 GO
 
 -- Create database user
-Use IoTEdgeDB;
-GO
-
 IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'iotuser')
 BEGIN
     CREATE USER [iotuser] FOR LOGIN [iotuser]
@@ -38,36 +35,36 @@ END;
 GO
 
 -- Create file format for stream input
-Create External file format JsonFormat
+Create External file format jsonfileformat
 WITH
 ( 
    format_type = JSON,
-)
+);
 GO
 
 -- Create stream output data source
-CREATE EXTERNAL DATA SOURCE EdgeHubTarget
+CREATE EXTERNAL DATA SOURCE edgehubsource
 WITH
 (
     LOCATION = 'edgehub://'
-)
+);
 GO
 
 -- Create SQL output data source
-CREATE EXTERNAL DATA SOURCE LocalSQLOutput
+CREATE EXTERNAL DATA SOURCE localsqlsource
 WITH
 (
     LOCATION = 'sqlserver://tcp:.,1433',
     CREDENTIAL = SQLCredential
-)
+);
 GO
 
 -- Create external input stream object
-CREATE EXTERNAL STREAM SensorInput
+CREATE EXTERNAL STREAM sensorinput
 WITH
 (
-    DATA_SOURCE = EdgeHubTarget,
-    FILE_FORMAT = JsonFormat,
+    DATA_SOURCE = edgehubsource,
+    FILE_FORMAT = jsonfileformat,
     LOCATION = N'sensorinput',
     INPUT_OPTIONS = N'',
     OUTPUT_OPTIONS = N''
@@ -75,23 +72,23 @@ WITH
 GO
 
 -- Create external output stream object
-CREATE EXTERNAL STREAM SensorOutput
+CREATE EXTERNAL STREAM iothuboutput
 WITH
 (
-    DATA_SOURCE = EdgeHubTarget,
-    FILE_FORMAT = JsonFormat,
-    LOCATION = N'sensoroutput',
+    DATA_SOURCE = edgehubsource,
+    FILE_FORMAT = jsonfileformat,
+    LOCATION = N'iothuboutput',
     INPUT_OPTIONS = N'',
     OUTPUT_OPTIONS = N''
 );
 GO
 
 -- Create external SQL output stream object
-CREATE EXTERNAL STREAM SqlOutput
+CREATE EXTERNAL STREAM sqldboutput
 WITH
 (
-    DATA_SOURCE = LocalSQLOutput,
-    LOCATION = N'IoTEdgeDB.dbo.SimulatedTemperature',
+    DATA_SOURCE = localsqlsource,
+    LOCATION = N'IoTEdgeDB.dbo.SensorTemperature',
     INPUT_OPTIONS = N'',
     OUTPUT_OPTIONS = N''
 );
@@ -100,7 +97,12 @@ GO
 -- Create streaming jobs query
 EXEC sys.sp_create_streaming_job @name=N'StreamingJob1', @statement=
 N'
-Select * INTO SensorOutput from SensorInput
+Select
+    *
+INTO
+    iothuboutput
+FROM
+    sensorinput
 
 Select 
     [timeCreated],
@@ -108,12 +110,10 @@ Select
     machine.pressure as [machinePressure],
     ambient.temperature as [ambientTemperature],
     ambient.humidity as [ambientHumidity]
- INTO SqlOutput from SensorInput
- '
-GO
-
--- Stop and start streaming job
-EXEC sys.sp_stop_streaming_job @name=N'StreamingJob1'
+ INTO
+    sqldboutput
+FROM
+    sensorinput'
 GO
 
 EXEC sys.sp_start_streaming_job @name=N'StreamingJob1'
