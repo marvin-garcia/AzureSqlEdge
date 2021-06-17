@@ -350,5 +350,5 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
-# Edge sample module until it becomes needed
-EdgeSolution/modules/SampleModule
+sqlEdge.manifest.json
+sample_manifest.json
