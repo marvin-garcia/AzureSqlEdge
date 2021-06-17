@@ -12,6 +12,7 @@ COPY DatabaseSecrets.json /usr/work/
 
 # Grant execute permissions to initialization script
 USER root
+RUN chown mssql /usr/work/*
 RUN chmod +x /usr/work/initialize.sh
 
 USER mssql
