@@ -1,0 +1,63 @@
+{
+    "content": {
+        "modulesContent": {
+            "$edgeAgent": {
+                "properties.desired.modules.sqlEdge": {
+                    "settings": {
+                        "image": "mcr.microsoft.com/azure-sql-edge/developer",
+                        "createOptions": "{ \"Hostname\": \"sqlEdge\", \"HostConfig\": { \"CapAdd\": [ \"SYS_PTRACE\" ], \"Binds\": [ \"sqlvolume:/sqlvolume\" ], \"PortBindings\": { \"1433/tcp\": [ { \"HostPort\": \"1433\" } ] }, \"Mounts\": [ { \"Type\": \"volume\", \"Source\": \"sqlvolume\", \"Target\": \"/var/opt/mssql\" } ] }, \"Env\": [ \"MSSQL_AGENT_ENABLED=TRUE\", \"ClientTransportType=AMQP_TCP_Only\", \"PlanId=asde-developer-on-iot-edge\" ] }"
+                    },
+                    "type": "docker",
+                    "env": {
+                        "ACCEPT_EULA": {
+                            "value": "Y"
+                        },
+                        "MSSQL_SA_PASSWORD": {
+                            "value": "__MSSQL_SA_PASSWORD__"
+                        },
+                        "MSSQL_LCID": {
+                            "value": "1033"
+                        },
+                        "MSSQL_COLLATION": {
+                            "value": "SQL_Latin1_General_CP1_CI_AS"
+                        },
+                        "MSSQL_PACKAGE": {
+                            "value": "https://sa210610122333.blob.core.windows.net/sqldatabasepackage/azure-sql-edge.dacpac?sp=r&st=2021-06-17T16:48:35Z&se=2022-02-06T01:48:35Z&spr=https&sv=2020-02-10&sr=b&sig=F5K0XhQb0Jt1YT3sBe68MWqsVIZnVH%2BdXZ%2F0iE6iKZ4%3D"
+                        }                        
+                    },
+                    "status": "running",
+                    "restartPolicy": "always",
+                    "version": "1.0"
+                },
+                "properties.desired.modules.simTempSensor": {
+                    "settings": {
+                        "image": "mcr.microsoft.com/azureiotedge-simulated-temperature-sensor:1.0",
+                        "createOptions": ""
+                    },
+                    "type": "docker",
+                    "env": {
+                        "MessageCount": {
+                            "value": "-1"
+                        },
+                        "SendInterval": {
+                            "value": "30"
+                        }
+                    },
+                    "status": "running",
+                    "restartPolicy": "always",
+                    "version": "1.0"
+                }
+            },
+            "$edgeHub": {
+                "properties.desired.routes.simTempSensorToAsa": "FROM /messages/modules/simTempSensor/* INTO BrokeredEndpoint(\"modules/sqlEdge/inputs/SensorInput\")",
+                "properties.desired.routes.AsaToIoTHub": "FROM /messages/modules/sqlEdge/outputs/IotHubOutput INTO $upstream"
+                
+            },
+            "simTempSensor": {
+                "properties.desired": {
+                    "SendData": true
+                }
+            }
+        }
+    }
+}

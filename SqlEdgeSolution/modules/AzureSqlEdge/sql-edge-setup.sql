@@ -1,13 +1,3 @@
--- create IoTEdgeDB database
-if db_id('IoTEdgeDB') is null
-    create database IoTEdgeDB;
-
--- commit the database creation batch
-go
-
--- set context to IoTEdgeDB
-use IoTEdgeDB;
-
 -- declare variables
 declare	@databaseMasterKey			nvarchar(64)
 	,	@databaseScopedCredential	nvarchar(64)
@@ -84,7 +74,7 @@ end;
 if not exists (select 1 from sys.external_file_formats where [name] = N'JsonFileFormat')
 begin
 	create external file format JsonFileFormat
-		with ( format_type = json );
+		with ( format_type = JSON );
 end;
 
 -- create a stream output data source
@@ -153,7 +143,7 @@ begin
 N'
 select	*
 into	IotHubOutput
-from    SensorInput;
+from    SensorInput
 
 select	[timeCreated]
 	,	machine.temperature	as [machineTemperature]
@@ -161,7 +151,8 @@ select	[timeCreated]
 	,	ambient.temperature as [ambientTemperature]
 	,	ambient.humidity	as [ambientHumidity]
 into    SqlDbOutput
-from    SensorInput;'
+from    SensorInput'
+			,	@streams = NULL
 
 	-- start streaming job if 'Created' or 'Stopped'
 	if (select [status] from sys.external_streaming_jobs where [name] = N'StreamingJob1') in (0, 4)
