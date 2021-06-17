@@ -1,3 +1,13 @@
+-- create IoTEdgeDB database
+if db_id('IoTEdgeDB') is null
+    create database IoTEdgeDB;
+
+-- commit the database creation batch
+go
+
+-- set context to IoTEdgeDB
+use IoTEdgeDB;
+
 -- declare variables
 declare	@databaseMasterKey			nvarchar(64)
 	,	@databaseScopedCredential	nvarchar(64)
