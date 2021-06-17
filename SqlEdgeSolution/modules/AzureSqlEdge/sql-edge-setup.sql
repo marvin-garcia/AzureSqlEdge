@@ -1,3 +1,13 @@
+-- create IoTEdgeDB database
+if db_id('IoTEdgeDB') is null
+    create database IoTEdgeDB;
+
+-- commit the database creation batch
+go
+
+-- set context to IoTEdgeDB
+use IoTEdgeDB;
+
 -- declare variables
 declare	@databaseMasterKey			nvarchar(64)
 	,	@databaseScopedCredential	nvarchar(64)
@@ -8,14 +18,6 @@ declare	@databaseMasterKey			nvarchar(64)
 -- declare version the database's schema will be upon the successful completion of this script
 set @schemaVersion = N'1.0';
 
--- create IoTEdgeDB database
-if not exists (select 1 from sys.databases where [name] = N'IoTEdgeDB')
-begin
-    create database IoTEdgeDB;
-end;
-
-use IoTEdgeDB;
-
 -- create dbo.SchemaVersionLog table
 if not exists (select 1 from sys.objects where [name] = N'SchemaVersionLog' and schema_id = 1 )
 begin
@@ -23,7 +25,7 @@ begin
 		(	[version]	nvarchar(8)	not null
 		,	appliedOn	datetime2	not null
 		);
-end;
+end
 
 -- create dbo.SensorTemperature table
 if not exists (select 1 from sys.objects where [name] = N'SensorTemperature' and schema_id = 1 )
@@ -41,7 +43,7 @@ end;
 select	@databaseMasterKey			= json_value(secrets.[value], '$[0].DatabaseMasterKey')
 	,	@databaseScopedCredential	= json_value(secrets.[value], '$[0].DatabaseScopedCredential')
 	,	@loginPassword				= json_value(secrets.[value], '$[0].LoginPassword')
-from	openrowset(bulk '/tmp/DatabaseSecrets.json', single_clob)	as clob
+from	openrowset(bulk '/usr/work/DatabaseSecrets.json', single_clob)	as clob
 cross	apply openjson(clob.BulkColumn,  'strict $')				as secrets;
 
 -- abort if any secrets are missing
@@ -62,7 +64,7 @@ if not exists (select 1 from sys.database_scoped_credentials where [name] = N'Sq
 begin
 	select @dynamicSql = concat(N'create database scoped credential SqlCredential with identity = ''iotuser'', secret = ''', @databaseScopedCredential, N'''');
 	execute sp_executesql @dynamicSql;
-end;
+end
 
 -- create a sql login
 if not exists (select 1 from sys.sql_logins where [name] = N'iotuser')
@@ -161,8 +163,11 @@ select	[timeCreated]
 into    SqlDbOutput
 from    SensorInput;'
 
-	-- start streaming job
-	execute sys.sp_start_streaming_job @name = N'StreamingJob1';
+	-- start streaming job if 'Created' or 'Stopped'
+	if (select [status] from sys.external_streaming_jobs where [name] = N'StreamingJob1') in (0, 4)
+	begin
+		execute sys.sp_start_streaming_job @name = N'StreamingJob1';
+	end;
 end;
 
 -- set the database schema's version
@@ -175,4 +180,12 @@ begin
 		)
 	select	@schemaVersion
 		,	getdate();
-end;
+end
+
+-- display the current schema version
+select	top 1
+		[version]
+	,	appliedOn
+from	dbo.SchemaVersionLog
+order	by
+		appliedOn desc;
