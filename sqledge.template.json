@@ -22,7 +22,7 @@
                             "value": "SQL_Latin1_General_CP1_CI_AS"
                         },
                         "MSSQL_PACKAGE": {
-                            "value": "https://sa210610122333.blob.core.windows.net/sqldatabasepackage/azure-sql-edge.dacpac?sp=r&st=2021-06-17T16:48:35Z&se=2022-02-06T01:48:35Z&spr=https&sv=2020-02-10&sr=b&sig=F5K0XhQb0Jt1YT3sBe68MWqsVIZnVH%2BdXZ%2F0iE6iKZ4%3D"
+                            "value": ""
                         }                        
                     },
                     "status": "running",
@@ -49,8 +49,8 @@
                 }
             },
             "$edgeHub": {
-                "properties.desired.routes.simTempSensorToAsa": "FROM /messages/modules/simTempSensor/* INTO BrokeredEndpoint(\"modules/sqlEdge/inputs/SensorInput\")",
-                "properties.desired.routes.AsaToIoTHub": "FROM /messages/modules/sqlEdge/outputs/IotHubOutput INTO $upstream"
+                "properties.desired.routes.simTempSensorToAsa": "FROM /messages/modules/simTempSensor/* INTO BrokeredEndpoint(\"modules/sqlEdge/inputs/sensorinput\")",
+                "properties.desired.routes.AsaToIoTHub": "FROM /messages/modules/sqlEdge/outputs/iothuboutput INTO $upstream"
                 
             },
             "simTempSensor": {
