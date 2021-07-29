@@ -352,3 +352,6 @@ MigrationBackup/
 
 sqlEdge.manifest.json
 sample_manifest.json
+.azuredatastudio/settings.json
+ML/Notebooks/sensortemp.model.onnx
+ML/Notebooks/boston1.model.onnx
