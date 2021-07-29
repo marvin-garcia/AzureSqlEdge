@@ -39,7 +39,9 @@ function New-Environment() {
     $deployment_manifest = "$root_path/sqledge.manifest.json"
 
     (Get-Content -Path $deployment_template -Raw) | ForEach-Object {
-        $_ -replace '__MSSQL_SA_PASSWORD__', $mmsql_sa_password `
+        $_ `
+            -replace '__MSSQL_SA_PASSWORD__', $mmsql_sa_password `
+            -replace '__MSSQL_PACKAGE__', "" `
             -replace '__ASA_JOB_INFO__', $edge_manifest.twin.content.'properties.desired'.ASAJobInfo
     } | Set-Content -Path $deployment_manifest
 

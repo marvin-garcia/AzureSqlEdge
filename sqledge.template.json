@@ -22,7 +22,7 @@
                             "value": "SQL_Latin1_General_CP1_CI_AS"
                         },
                         "MSSQL_PACKAGE": {
-                            "value": ""
+                            "value": "__MSSQL_PACKAGE__"
                         }                        
                     },
                     "status": "running",
