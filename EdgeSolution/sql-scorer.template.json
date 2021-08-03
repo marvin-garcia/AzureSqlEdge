@@ -1,0 +1,52 @@
+{
+    "content": {
+        "modulesContent": {
+            "$edgeAgent": {
+                "properties.desired.modules.sqlScorer": {
+                    "settings": {
+                        "image": "__IMAGE__",
+                        "createOptions": "{}"
+                    },
+                    "env": {
+                        "SQL_SERVER": {
+                            "value": "sqlEdge"
+                        },
+                        "SQL_DATABASE": {
+                            "value": "IoTEdgeDB"
+                        },
+                        "SQL_USERNAME": {
+                            "value": "iotuser"
+                        },
+                        "SQL_PASSWORD": {
+                            "value": "SuperSecretP@ssw0rd!"
+                        },
+                        "SQL_MODELS_TABLE": {
+                            "value": "Models"
+                        },
+                        "SQL_FEATURES_TABLE": {
+                            "value": "OpcNodes"
+                        },
+                        "SQL_MODELS_ID_COLUMN_NAME": {
+                            "value": "applicationUri"
+                        },
+                        "SQL_MODELS_TRIGGER_COLUMN_NAME": {
+                            "value": "applicationUri"
+                        },
+                        "TIMER_SECONDS": {
+                            "value": "30"
+                        }
+                    },
+                    "type": "docker",
+                    "status": "running",
+                    "restartPolicy": "always",
+                    "version": "1.0"
+                }
+            },
+            "$edgeHub": {
+                "properties.desired.routes.sqlEdgeToScorer": "FROM /messages/modules/sqlEdge/outputs/iothuboutput INTO BrokeredEndpoint(\"modules/sqlScorer/inputs/input1\")",
+                "properties.desired.routes.scorerToIoTHub": "FROM /messages/modules/sqlScorer/* INTO $upstream"
+
+            }
+        }
+    }
+}

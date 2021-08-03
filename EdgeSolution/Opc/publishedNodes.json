@@ -1,0 +1,80 @@
+[
+  {
+    "EndpointUrl": "opc.tcp://opcServer1:51200/",
+    "UseSecurity": false,
+    "OpcNodes": [
+      {
+        "Id": "ns=2;s=DipData",
+        "OpcPublishingInterval": 5000,
+        "DisplayName": "DipData"
+      },
+      {
+        "Id": "ns=2;s=SpikeData",
+        "OpcPublishingInterval": 5000,
+        "DisplayName": "SpikeData"
+      },
+     {
+        "Id": "ns=2;s=RandomSignedInt32",        
+        "OpcPublishingInterval": 10000,
+        "DisplayName": "RandomSignedInt32"       
+      },
+      {
+        "Id": "ns=2;s=AlternatingBoolean",
+        "OpcPublishingInterval": 30000,
+        "DisplayName": "AlternatingBoolean"
+      }
+    ]
+  },
+  {
+    "EndpointUrl": "opc.tcp://opcServer2:51201/",
+    "UseSecurity": false,
+    "OpcNodes": [
+      {
+        "Id": "ns=2;s=DipData",
+        "OpcPublishingInterval": 5000,
+        "DisplayName": "DipData"
+      },
+      {
+        "Id": "ns=2;s=SpikeData",
+        "OpcPublishingInterval": 5000,
+        "DisplayName": "SpikeData"
+      },
+     {
+        "Id": "ns=2;s=RandomSignedInt32",        
+        "OpcPublishingInterval": 10000,
+        "DisplayName": "RandomSignedInt32"       
+      },
+      {
+        "Id": "ns=2;s=AlternatingBoolean",
+        "OpcPublishingInterval": 30000,
+        "DisplayName": "AlternatingBoolean"
+      }
+    ]
+  },
+  {
+    "EndpointUrl": "opc.tcp://opcServer3:51202/",
+    "UseSecurity": false,
+    "OpcNodes": [
+      {
+        "Id": "ns=2;s=DipData",
+        "OpcPublishingInterval": 5000,
+        "DisplayName": "DipData"
+      },
+      {
+        "Id": "ns=2;s=SpikeData",
+        "OpcPublishingInterval": 5000,
+        "DisplayName": "SpikeData"
+      },
+     {
+        "Id": "ns=2;s=RandomSignedInt32",
+        "OpcPublishingInterval": 10000,
+        "DisplayName": "RandomSignedInt32"
+      },
+      {
+        "Id": "ns=2;s=AlternatingBoolean",
+        "OpcPublishingInterval": 30000,
+        "DisplayName": "AlternatingBoolean"
+      }
+    ]
+  }
+]

@@ -1,0 +1,21 @@
+# FROM amd64/python:3.7-slim-buster
+FROM amd64/python:3.7-buster
+
+WORKDIR /app
+COPY requirements.txt ./
+
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+RUN curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list
+
+RUN apt-get update
+RUN apt-get install -y unixodbc-dev
+RUN ACCEPT_EULA=Y apt-get install -y msodbcsql17
+RUN ACCEPT_EULA=Y apt-get install -y mssql-tools
+    # && apt-get install -y unixodbc-dev \
+    # && apt-get install libgssapi-krb5-2
+
+RUN pip install -r requirements.txt
+
+COPY . .
+
+CMD [ "python3", "-u", "./main.py" ]

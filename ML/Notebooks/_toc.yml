@@ -1,4 +1,4 @@
-- title: Train sensor temeprature model
-  file: /train-sensortemp-model
 - title: Train Boston housing dataset
   file: /train-boston-housing-model
+- title: Train OPC nodes data
+  file: /train-opc-nodes-model

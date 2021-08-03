@@ -49,9 +49,9 @@
                 }
             },
             "$edgeHub": {
-                "properties.desired.routes.simTempSensorToAsa": "FROM /messages/modules/simTempSensor/* INTO BrokeredEndpoint(\"modules/sqlEdge/inputs/sensorinput\")",
-                "properties.desired.routes.AsaToIoTHub": "FROM /messages/modules/sqlEdge/outputs/iothuboutput INTO $upstream"
-                
+                "properties.desired.routes.simTempSensorToSqlEdge": "FROM /messages/modules/simTempSensor/* INTO BrokeredEndpoint(\"modules/sqlEdge/inputs/edgehubinput\")",
+                "properties.desired.routes.opcPublisherToSqlEdge": "FROM /messages/modules/opcPublisher/* INTO BrokeredEndpoint(\"modules/sqlEdge/inputs/edgehubinput\")",
+                "properties.desired.routes.sqlEdgeToIoTHub": "FROM /messages/modules/sqlEdge/outputs/iothuboutput INTO $upstream"
             },
             "simTempSensor": {
                 "properties.desired": {

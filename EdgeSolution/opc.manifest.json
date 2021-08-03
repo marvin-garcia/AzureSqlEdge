@@ -42,14 +42,6 @@
                         "createOptions": "{\"Hostname\":\"opcPublisher\",\"Cmd\":[\"publisher\",\"--aa\",\"--pf=/appdata/publishednodes.json\"],\"HostConfig\":{\"PortBindings\":{\"9080/tcp\":[{\"HostPort\":\"9080\"}]},\"Binds\":[\"/appdata:/appdata\"]}}"
                     }
                 }
-            },
-            "$edgeHub": {
-                "properties.desired.routes.opcPublisherToIoTHub": "FROM /messages/modules/opcPublisher/* INTO $upstream"
-            },
-            "simTempSensor": {
-                "properties.desired": {
-                    "SendData": true
-                }
             }
         }
     }

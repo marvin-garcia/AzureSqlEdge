@@ -15,6 +15,19 @@ BEGIN
 END;
 GO
 
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE NAME = N'OpcNodes')
+BEGIN
+    CREATE TABLE OpcNodes (id [int] IDENTITY(1,1) NOT NULL, SourceTimestamp DATETIME2, NodeId VARCHAR(128), ApplicationUri VARCHAR(128), DipData FLOAT NULL, SpikeData FLOAT NULL, RandomSignedInt32 FLOAT NULL);
+END;
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE NAME = N'Models')
+BEGIN
+
+    CREATE TABLE Models (id [int] IDENTITY(1,1) NOT NULL, data [varbinary](max) NULL, description VARCHAR(128), applicationUri VARCHAR(128) NULL);
+END;
+GO
+
 -- Create login
 CREATE LOGIN iotuser WITH PASSWORD = 'SuperSecretP@ssw0rd!'
 GO
@@ -60,12 +73,23 @@ WITH
 GO
 
 -- Create external input stream object
-CREATE EXTERNAL STREAM sensorinput
+CREATE EXTERNAL STREAM sensortempinput
 WITH
 (
     DATA_SOURCE = edgehubsource,
     FILE_FORMAT = jsonfileformat,
-    LOCATION = N'sensorinput',
+    LOCATION = N'sensortempinput',
+    INPUT_OPTIONS = N'',
+    OUTPUT_OPTIONS = N''
+);
+GO
+
+CREATE EXTERNAL STREAM opcpublisherinput
+WITH
+(
+    DATA_SOURCE = edgehubsource,
+    FILE_FORMAT = jsonfileformat,
+    LOCATION = N'opcpublisherinput',
     INPUT_OPTIONS = N'',
     OUTPUT_OPTIONS = N''
 );
@@ -84,7 +108,7 @@ WITH
 GO
 
 -- Create external SQL output stream object
-CREATE EXTERNAL STREAM sqldboutput
+CREATE EXTERNAL STREAM sensortempdboutput
 WITH
 (
     DATA_SOURCE = localsqlsource,
@@ -94,7 +118,21 @@ WITH
 );
 GO
 
+CREATE EXTERNAL STREAM opcnodesdboutput
+WITH
+(
+    DATA_SOURCE = localsqlsource,
+    LOCATION = N'IoTEdgeDB.dbo.OpcNodes',
+    INPUT_OPTIONS = N'',
+    OUTPUT_OPTIONS = N''
+);
+GO
+
 -- Create streaming jobs query
+EXEC sys.sp_stop_streaming_job @name=N'StreamingJob1'
+EXEC sys.sp_drop_streaming_job @name=N'StreamingJob1'
+GO
+
 EXEC sys.sp_create_streaming_job @name=N'StreamingJob1', @statement=
 N'
 Select
@@ -102,19 +140,19 @@ Select
 INTO
     iothuboutput
 FROM
-    sensorinput
+    opcpublisherinput
 
-Select 
-    [timeCreated],
-    machine.temperature as [machineTemperature],
-    machine.pressure as [machinePressure],
-    ambient.temperature as [ambientTemperature],
-    ambient.humidity as [ambientHumidity]
- INTO
-    sqldboutput
+SELECT
+    Value.SourceTimestamp,
+    NodeId,
+    ApplicationUri,
+    (LAG(Value) OVER (PARTITION BY ApplicationUri LIMIT DURATION(minute, 3)  WHEN DisplayName = ''DipData'')).Value As DipData,
+    (LAG(Value) OVER (PARTITION BY ApplicationUri LIMIT DURATION(minute, 3)  WHEN DisplayName = ''SpikeData'')).Value As SpikeData,
+    (LAG(Value) OVER (PARTITION BY ApplicationUri LIMIT DURATION(minute, 3)  WHEN DisplayName = ''RandomSignedInt32'')).Value As RandomSignedInt32
+INTO
+    opcnodesdboutput
 FROM
-    sensorinput'
-GO
+    opcpublisherinput'
 
 EXEC sys.sp_start_streaming_job @name=N'StreamingJob1'
 GO
